@@ -93,7 +93,7 @@
           pkgs.coreutils
           pkgs.bubblewrap
           nix-eval-jobs
-          nix-eval-jobs.nix
+          pkgs.nix
         ];
 
         # Remote builders need a HOME for ~/.ssh.
