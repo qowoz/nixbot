@@ -1090,7 +1090,7 @@ in
         pkgs.bash
         pkgs.coreutils
         pkgs.bubblewrap
-        packages.nix-eval-jobs
+        pkgs.nix-eval-jobs
         config.nix.package
       ];
 

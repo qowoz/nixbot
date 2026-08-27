@@ -3,7 +3,6 @@ let
   newScope = extra: lib.callPackageWith (pkgs // pkgs.python3.pkgs // extra);
 
   scope = lib.makeScope newScope (self: {
-    nix-eval-jobs = self.callPackage ./nix-eval-jobs.nix { };
     nixbot = self.callPackage ./nixbot.nix { };
     nixbot-cli = self.callPackage ./nixbot-cli.nix { };
     nixbot-effects = self.callPackage ./nixbot-effects.nix { };
