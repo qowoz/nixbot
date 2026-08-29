@@ -76,10 +76,8 @@ in
   inherit nixComponents;
 }).overrideAttrs
   (
-    _finalAttrs: prevAttrs: {
-      # unreleased main: memory budget scheduler and per-attribute warnings
-      version = "2.35.2-unstable-2026-08-30";
-      buildInputs = (prevAttrs.buildInputs or [ ]) ++ [ pkgs.mimalloc ];
+    finalAttrs: prevAttrs: {
+      version = "2.35.2";
       # The nix CLI nixbot runs (flake prefetch-inputs/archive) must carry
       # the same patches, so expose it alongside nix-eval-jobs.
       passthru = (prevAttrs.passthru or { }) // {
@@ -88,8 +86,8 @@ in
       src = fetchFromGitHub {
         owner = "NixOS";
         repo = "nix-eval-jobs";
-        rev = "c026cff507d3f5ea067098d323a2f29e2f634c2f";
-        hash = "sha256-FKXrE2qHTHVA7xOHFH+Grm+EaF9Hk+JrTi6VBHrvSuI=";
+        tag = "v${finalAttrs.version}";
+        hash = "sha256-qHxk1wVKqz/UMtVC14ugkhySbqYcRQbwobyeO/fhAf0=";
       };
     }
   )
