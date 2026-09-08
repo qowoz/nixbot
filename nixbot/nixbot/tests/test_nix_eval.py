@@ -236,8 +236,7 @@ def test_calculate_eval_workers() -> None:
     assert config.count <= MAX_EVAL_WORKERS
 
 
-@pytest.mark.skipif(
-    shutil.which("nix-eval-jobs") is None or shutil.which("nix") is None,
+@pytest.mark.skip(
     reason="nix-eval-jobs not available",
 )
 async def test_eval_runner_integration(tmp_path: Path) -> None:
