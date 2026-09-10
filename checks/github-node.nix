@@ -5,7 +5,7 @@
 # /var/lib/fake-github/check_runs.jsonl for the test scripts to assert
 # on.
 { flakeText }:
-{ self, pkgs, ... }:
+{ pkgs, ... }:
 let
   fakeGithubPort = 8970;
   fakeGithub = pkgs.writers.writePython3Bin "fake-github" { } ''
@@ -86,7 +86,7 @@ let
   testFlake = pkgs.writeText "flake.nix" (flakeText pkgs);
 in
 {
-  imports = [ self.nixosModules.nixbot ];
+  imports = [ ../nixosModules/nixbot.nix ];
 
   services.nixbot = {
     enable = true;

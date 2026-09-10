@@ -1,3 +1,4 @@
+{ pkgs }:
 let
   # Both nodes build the same minimal flake with one check.
   testFlake =
@@ -39,7 +40,7 @@ let
     git commit -m "initial commit"
   '';
 in
-(import ./lib.nix) {
+pkgs.testers.runNixOSTest {
   name = "nixbot";
   nodes = {
     # GitHub mode against a fake GitHub API: discovery, webhook, eval,
@@ -47,6 +48,7 @@ in
     github =
       { pkgs, ... }:
       {
+        nix.package = pkgs.nixVersions.nix_2_35;
         imports = [ (import ./github-node.nix { flakeText = testFlake; }) ];
         services.nixbot.uploaders = [
           {
@@ -80,9 +82,10 @@ in
     # Gitea mode against a real Gitea: discovery registers the webhook,
     # a push delivers it, and nixbot posts commit statuses back.
     gitea =
-      { self, pkgs, ... }:
+      { pkgs, ... }:
       {
-        imports = [ self.nixosModules.nixbot ];
+        nix.package = pkgs.nixVersions.nix_2_35;
+        imports = [ ../nixosModules/nixbot.nix ];
 
         services.gitea = {
           enable = true;
