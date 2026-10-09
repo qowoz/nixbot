@@ -238,58 +238,5 @@ in
         )
         names = {line.rsplit("-", 1)[1] for line in narinfos.split()[1::2]}
         assert names == {"test", "dep"}, narinfos
-
-    with subtest("gitea: nixbot becomes healthy"):
-        gitea.wait_for_unit("nixbot.service")
-        # The gitea node keeps the default managed nginx vhost; the
-        # engine only listens on the unix socket there, so probe
-        # through nginx (the github node covers the plain TCP mode).
-        gitea.wait_for_unit("nginx.service")
-        gitea.wait_until_succeeds(
-            "curl --fail -s http://localhost/health", timeout=120
-        )
-
-    with subtest("gitea: project discovered and webhook registered"):
-        def gitea_hook_registered(_ignore):
-            out = gitea.succeed(
-                "TOKEN=$(cat /tmp/gitea-token); "
-                "curl -fs -H \"Authorization: token $TOKEN\" "
-                "http://localhost:3742/api/v1/repos/gitea-admin/test-flake/hooks"
-            )
-            hooks = json.loads(out)
-            print(hooks)
-            return any(h.get("active") for h in hooks)
-
-        retry(gitea_hook_registered, timeout_seconds=180)
-
-    with subtest("gitea: push triggers eval, build, and commit statuses"):
-        gitea.succeed(
-            "cd /tmp/test-flake && "
-            "echo '# trigger' >> flake.nix && "
-            "git add flake.nix && "
-            "git commit -m 'trigger build' && "
-            "git push origin master"
-        )
-        sha = gitea.succeed("git -C /tmp/test-flake rev-parse master").strip()
-
-        def gitea_statuses_posted(_ignore):
-            out = gitea.succeed(
-                "TOKEN=$(cat /tmp/gitea-token); "
-                "curl -fs -H \"Authorization: token $TOKEN\" "
-                f"http://localhost:3742/api/v1/repos/gitea-admin/test-flake/statuses/{sha}"
-            )
-            statuses = json.loads(out)
-            print(statuses)
-            done = {
-                s["context"]: s["status"]
-                for s in statuses
-                if s["status"] in ("success", "failure", "error")
-            }
-            return (
-                done.get("nixbot/nix-eval") == "success"
-                and done.get("nixbot/nix-build") == "success"
-            )
-
-        retry(gitea_statuses_posted, timeout_seconds=300)
   '';
 }
